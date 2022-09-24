@@ -23,7 +23,7 @@
     "nhjr.ToolBox.debug.JSON.parse":"⚠⚠⚠ 字符串转对象 JSON.parse [VALUE]",
     "nhjr.ToolBox.debug.JSON.stringify":"对象转字符串 JSON.stringify [VALUE]",
 
-    "nhjr.ToolBox.JSON.readValueFromKey":"JSON [JSON] 从键读值 [KEY]",
+    "nhjr.ToolBox.JSON.readValueFromKey":"JSON [JSON] 从键[KEY]读值",
     "nhjr.ToolBox.JSON.readKeys":"JSON [JSON] 读取 [MENU]", "nhjr.ToolBox.JSON.readKeys.menu.keys":"所有键", "nhjr.ToolBox.JSON.readKeys.menu.values":"所有值", "nhjr.ToolBox.JSON.readKeys.menu.entries":"所有键值的二维列表",
     "nhjr.ToolBox.JSON.containsKey":"JSON [JSON] 包含 [KEY] 键",
     "nhjr.ToolBox.JSON.setValue":"JSON [JSON] [KEY] 设置值为 [VALUE]",
