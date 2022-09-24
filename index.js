@@ -915,7 +915,7 @@ class nhjrToolBoxExtension extends Extension {
             function: args => {
                 try{var TextToURL=String(args.VALUE);
                     if (['encodeURIComponent','escape','encodeURI'].includes(args.CODE))
-                        {return eval(`${CODE}(TextToURL)`)}
+                        {return eval(`${args.CODE}(TextToURL)`)}
                     else{return ''}
                 }
                 catch(e){return this.logError(e)}    
