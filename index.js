@@ -1,10 +1,11 @@
 const {api, type, Extension} = require('clipcc-extension');
 let nhjrToolBox_Error='';
-let nhjrToolBox_hat_result={};
+let nhjrToolBox_hat_oldValue={};
 let nhjrToolBox_TemporaryVariable={};
 let nhjrToolBox_returnError=false;
 let nhjrToolBox_returnObj=false;
 const VM = api.getVmInstance();
+let alerted = false;
 
 class nhjrToolBoxExtension extends Extension {
     logError(e){
@@ -13,12 +14,13 @@ class nhjrToolBoxExtension extends Extension {
         if (nhjrToolBox_returnError){return nhjrToolBox_Error};
         return ''
     }
-    quotedStr(VALUE){//str to "str"
-        return JSON.stringify([String(VALUE)]).slice(1,-1)
+    strTo_str_(VALUE){//str to "str"
+        try{return JSON.stringify([String(VALUE)]).slice(1,-1)}
+        catch(e){return this.logError(e)}
     }
-    analysisQuotedStr(VALUE){//"str" to str
-        if (typeof(VALUE)=='string'){return JSON.parse(`[${VALUE}]`)[0]};
-        return VALUE
+    _str_ToStr(VALUE){//"str" to str
+        try{if (typeof(VALUE)=='string'){return JSON.parse(`[${VALUE}]`)[0]};
+        return VALUE}catch(e){return this.logError(e)}
         
     }
     inputStrToObj(Str){
@@ -90,7 +92,7 @@ class nhjrToolBoxExtension extends Extension {
     list_setN(LIST,N,VALUE){
         try{
             var LIST=this.inputStrToObj(LIST);
-            LIST[this.list_getN(LIST,N)]=this.analysisQuotedStr(VALUE);
+            LIST[this.list_getN(LIST,N)]=this._str_ToStr(VALUE);
             return this.returnForList(LIST)
         }
         catch(e){return this.logError(e)}
@@ -226,8 +228,8 @@ class nhjrToolBoxExtension extends Extension {
             messageId: 'nhjr.ToolBox.debug.VM',
             categoryId: 'nhjr.ToolBox.debug',
             function: args => {
-                try {if(nhjrToolBox_returnObj){return JSON.parse(this.analysisQuotedStr(JSON.stringify(VM)))};
-                    return this.analysisQuotedStr(JSON.stringify(VM))}
+                try {if(nhjrToolBox_returnObj){return JSON.parse(this._str_ToStr(JSON.stringify(VM)))};
+                    return this._str_ToStr(JSON.stringify(VM))}
                 catch(e){return this.logError(e)}
             }
         });
@@ -237,7 +239,7 @@ class nhjrToolBoxExtension extends Extension {
             messageId: 'nhjr.ToolBox.debug.hatResult',
             categoryId: 'nhjr.ToolBox.debug',
             function: args => {
-                try {return JSON.stringify(nhjrToolBox_hat_result)}
+                try {return JSON.stringify(nhjrToolBox_hat_oldValue)}
                 catch(e){return this.logError(e)}
             }
         });
@@ -247,7 +249,7 @@ class nhjrToolBoxExtension extends Extension {
             messageId: 'nhjr.ToolBox.debug.clearHatResult',
             categoryId: 'nhjr.ToolBox.debug',
             function: args => {
-                try {nhjrToolBox_hat_result={}}
+                try {nhjrToolBox_hat_oldValue={}}
                 catch(e){return this.logError(e)}
             }
         });
@@ -476,11 +478,11 @@ class nhjrToolBoxExtension extends Extension {
             function: (args,util) => {
                 try{//util.thread.peekStack() 是函数调用来源积木ID。通过这个区分，可以避免bug
                     var CONDITION=this.returnForBoolean(args.CONDITION);
-                    if (nhjrToolBox_hat_result[util.thread.peekStack()]!=(CONDITION) && CONDITION) {
-                        nhjrToolBox_hat_result[util.thread.peekStack()] = CONDITION;
+                    if (nhjrToolBox_hat_oldValue[util.thread.peekStack()]!=(CONDITION) && CONDITION) {
+                        nhjrToolBox_hat_oldValue[util.thread.peekStack()] = CONDITION;
                         return true;
                     }
-                    nhjrToolBox_hat_result[util.thread.peekStack()] = CONDITION;
+                    nhjrToolBox_hat_oldValue[util.thread.peekStack()] = CONDITION;
                 }
                 catch(e){return this.logError(e)};
                 return false;
@@ -499,11 +501,11 @@ class nhjrToolBoxExtension extends Extension {
             },
             function: (args,util) => {
                 try{//util.thread.peekStack() 是函数调用来源积木ID。通过这个区分，可以避免bug
-                    if (nhjrToolBox_hat_result[util.thread.peekStack()]!=(args.CONDITION)) {
-                        nhjrToolBox_hat_result[util.thread.peekStack()] = args.CONDITION;
+                    if (nhjrToolBox_hat_oldValue[util.thread.peekStack()]!=(args.CONDITION)) {
+                        nhjrToolBox_hat_oldValue[util.thread.peekStack()] = args.CONDITION;
                         return true;
                     }
-                    nhjrToolBox_hat_result[util.thread.peekStack()] = args.CONDITION;
+                    nhjrToolBox_hat_oldValue[util.thread.peekStack()] = args.CONDITION;
                 }
                 catch(e){return this.logError(e)};
                 return false;
@@ -587,9 +589,9 @@ class nhjrToolBoxExtension extends Extension {
         //String and Type
         api.addBlock({
             //带引号的字符串
-            opcode: 'nhjr.ToolBox.StringAndType.quotedStr',
+            opcode: 'nhjr.ToolBox.StringAndType.strToSTR',
             type: type.BlockType.REPORTER,
-            messageId: 'nhjr.ToolBox.StringAndType.quotedStr',
+            messageId: 'nhjr.ToolBox.StringAndType.strToSTR',
             categoryId: 'nhjr.ToolBox.StringAndType',
             param: {
                 VALUE: {
@@ -599,15 +601,15 @@ class nhjrToolBoxExtension extends Extension {
             },
             function: args => {
                 try {
-                    return this.quotedStr(args.VALUE)
+                    return this.strTo_str_(args.VALUE)
                 }
                 catch(e){return this.logError(e)}
             }
         });
         api.addBlock({
-            opcode: 'nhjr.ToolBox.StringAndType.analysisQuotedStr',
+            opcode: 'nhjr.ToolBox.StringAndType.STRtoStr',
             type: type.BlockType.REPORTER,
-            messageId: 'nhjr.ToolBox.StringAndType.analysisQuotedStr',
+            messageId: 'nhjr.ToolBox.StringAndType.STRtoStr',
             categoryId: 'nhjr.ToolBox.StringAndType',
             param: {
                 VALUE: {
@@ -615,7 +617,7 @@ class nhjrToolBoxExtension extends Extension {
                     default: '"Hello\\nWorld!"'
                 }
             },
-            function: args => this.analysisQuotedStr(args.VALUE)
+            function: args => this._str_ToStr(args.VALUE)
         });
 
         api.addBlock({
@@ -1084,7 +1086,7 @@ class nhjrToolBoxExtension extends Extension {
                     while (i<keys.length){
                         i+=1;
                         valueList[i]=valueList[i-1][keys[i-1]];
-                    };valueList[i]=this.analysisQuotedStr(args.VALUE);
+                    };valueList[i]=this._str_ToStr(args.VALUE);
                     while (i>0){
                         valueList[i-1][keys[i-1]]=valueList[i];
                         delete valueList[i];
@@ -1116,7 +1118,7 @@ class nhjrToolBoxExtension extends Extension {
             function: args => {
                 try {
                     var keys=JSON.parse(`[${args.KEY}]`);
-                    var NEW=this.analysisQuotedStr(args.NEWKEY);
+                    var NEW=this._str_ToStr(args.NEWKEY);
                     var valueList=[this.inputStrToObj(args.JSON)];
                     var i=0;
                     while (i<keys.length-1){
@@ -1251,7 +1253,7 @@ class nhjrToolBoxExtension extends Extension {
                 }
             },
             function: args => {
-                try {return (this.inputStrToObj(args.LIST)).indexOf(this.analysisQuotedStr(args.INDEXOF))}
+                try {return (this.inputStrToObj(args.LIST)).indexOf(this._str_ToStr(args.INDEXOF))}
                 catch(e){return this.logError(e)}
             }
         });
@@ -1271,7 +1273,7 @@ class nhjrToolBoxExtension extends Extension {
                 }
             },
             function: args => {
-                try {return (this.inputStrToObj(args.LIST)).includes(this.analysisQuotedStr(args.VALUE))}
+                try {return (this.inputStrToObj(args.LIST)).includes(this._str_ToStr(args.VALUE))}
                 catch(e){return this.logError(e)}
             }
         });
@@ -1381,12 +1383,17 @@ class nhjrToolBoxExtension extends Extension {
                     type: type.ParameterType.STRING,
                     default: 'sort',
                     menu: this.makeMenus('nhjr.ToolBox.list.sort',['sort','reverse'])
+                },
+                FUN:{
+                    type: type.ParameterType.STRING,
+                    default: 'up',
+                    menu: this.makeMenus('nhjr.ToolBox.list.sort.fun',['null','up','down'])
                 }
             },
             function: args => {
                 try {
-                    if (['sort','reverse'].includes(args.M)){
-                        return this.returnForList(eval(`this.inputStrToObj(args.LIST).${args.M}()`))
+                    if (['sort','reverse'].includes(args.M) && ['null','up','down'].includes(args.FUN)){
+                        return this.returnForList(eval(`this.inputStrToObj(args.LIST).${args.M}(${ ( ['','function(a,b){return a-b}','function(a,b){return b-a}'][ ['null','up','down'].indexOf(args.FUN) ] ) })`))
                     }
                 }
                 catch(e){return this.logError(e)}
@@ -1652,7 +1659,7 @@ class nhjrToolBoxExtension extends Extension {
             },
             function: args => {
                 try {
-                    return String(args.VALUE1).replace(this.String_to_Regular_Expression(args.VALUE2),this.analysisQuotedStr(args.VALUE3))
+                    return String(args.VALUE1).replace(this.String_to_Regular_Expression(args.VALUE2),this._str_ToStr(args.VALUE3))
                 }
                 catch(e){return this.logError(e)}
             }
@@ -1674,7 +1681,7 @@ class nhjrToolBoxExtension extends Extension {
             },
             function: args => {
                 try {var VALUE2=this.String_to_Regular_Expression(args.VALUE2);
-                    if (VALUE2==''){var VALUE2=this.analysisQuotedStr(args.VALUE2)}
+                    if (VALUE2==''){var VALUE2=this._str_ToStr(args.VALUE2)}
                     return this.returnForList(String(args.VALUE1).split(VALUE2))
                 }
                 catch(e){return this.logError(e)}
