@@ -14,7 +14,7 @@
     "nhjr.ToolBox.debug.error":"nhjrToolBox 报错",
     "nhjr.ToolBox.debug.ConsoleLog":"浏览器开发者工具输出日志 [PRINT]",
     "nhjr.ToolBox.debug.hatResult":"nhjrToolBox 帽头积木记录值",
-    "nhjr.ToolBox.debug.clearHatResult":"⚠⚠⚠ nhjrToolBox 清除 冒头积木记录值",
+    "nhjr.ToolBox.debug.clearHatResult":"⚠⚠⚠ nhjrToolBox 清除 帽头积木记录值",
     "nhjr.ToolBox.debug.getAllTemporaryVariableJSON":"获取所有临时变量的JSON",
     "nhjr.ToolBox.debug.setReturnError":"⚠⚠⚠ 返回错误？设为 [BOOLEAN]",
     "nhjr.ToolBox.debug.isReturnError":"会返回错误？",
