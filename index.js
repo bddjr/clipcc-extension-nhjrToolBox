@@ -914,8 +914,7 @@ class nhjrToolBoxExtension extends Extension {
             },
             function: args => {
                 try{var TextToURL=String(args.VALUE);
-                    var CODE=args.CODE;
-                    if (['encodeURIComponent','escape','encodeURI'].includes(CODE))
+                    if (['encodeURIComponent','escape','encodeURI'].includes(args.CODE))
                         {return eval(`${CODE}(TextToURL)`)}
                     else{return ''}
                 }
@@ -941,8 +940,8 @@ class nhjrToolBoxExtension extends Extension {
             function: args => {
                 try{
                     var URLToText=String(args.VALUE);
-                    if (['decodeURIComponent','unescape','decodeURI'].includes(CODE))
-                        {return eval(`${CODE}(URLToText)`)}
+                    if (['decodeURIComponent','unescape','decodeURI'].includes(args.CODE))
+                        {return eval(`${args.CODE}(URLToText)`)}
                     else{return ''}
                 }
                 catch(e){return this.logError(e)}    
