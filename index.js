@@ -382,6 +382,7 @@ class nhjrToolBoxExtension extends Extension {
                     var Json = this.getSpriteByName(this.returnForBoolean(args.ISSTAGE),args.SPRITE,util.target.runtime);
                     var saveList=this.inputStrToObj(args.LIST);
                     if (saveList instanceof Array){
+                        var i=0
                         for (i = 0; i < saveList.length; i++){
                             if (!['string','number'].includes(typeof(saveList[i]))){
                                 saveList[i]=String(saveList[i])
