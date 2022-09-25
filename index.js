@@ -19,7 +19,10 @@ class nhjrToolBoxExtension extends Extension {
         catch(e){return this.logError(e)}
     }
     _str_ToStr(VALUE){//"str" to str
-        try{if (typeof(VALUE)=='string'){return JSON.parse(`[${VALUE}]`)[0]};
+        try{if (typeof(VALUE)=='string'){
+            var i=JSON.parse(`[${VALUE}]`)[0];
+            return this.returnForList(i)
+        };
         return VALUE}catch(e){return this.logError(e)}
         
     }
