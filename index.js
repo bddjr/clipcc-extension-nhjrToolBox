@@ -15,13 +15,12 @@ class nhjrToolBoxExtension extends Extension {
         return ''
     }
     strTo_str_(VALUE){//str to "str"
-        try{return JSON.stringify([String(VALUE)]).slice(1,-1)}
+        try{return JSON.stringify(String(VALUE))}
         catch(e){return this.logError(e)}
     }
     _str_ToStr(VALUE){//"str" to str
         try{if (typeof(VALUE)=='string'){
-            var i=JSON.parse(`[${VALUE}]`)[0];
-            return this.returnForList(i)
+            return this.returnForList(JSON.parse(VALUE))
         };
         return VALUE}catch(e){return this.logError(e)}
         
@@ -337,7 +336,8 @@ class nhjrToolBoxExtension extends Extension {
             categoryId: 'nhjr.ToolBox.debug',
             param: {
                 VALUE:{
-                    type: type.ParameterType.ANY
+                    type: type.ParameterType.STRING,
+                    default:' '
                 }
             },
             function: args => {
