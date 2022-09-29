@@ -9,7 +9,7 @@
     "nhjr.ToolBox.StringAndType":"String and Type",
     "nhjr.ToolBox.RegularExpression":"Regular Expression",
     "nhjr.ToolBox.ConvenientModules":"Convenient modules",
-    "nhjr.ToolBox.debug":"debug",
+    "nhjr.ToolBox.debug":"debug - nhjrToolBox",
 
     "nhjr.ToolBox.help.github": "goTo github repository",
     "nhjr.ToolBox.help.gitee": "goTo gitee repository",
@@ -67,7 +67,8 @@
     "nhjr.ToolBox.list.removeDuplicateItems":"list [LIST] remove duplicate items",
     "nhjr.ToolBox.list.addItem":"list [LIST] add [VALUE]",
     "nhjr.ToolBox.list.mxxItem":"list [LIST] [M] item","nhjr.ToolBox.list.mxxItem.menu.max":"max","nhjr.ToolBox.list.mxxItem.menu.min":"min",
-    "nhjr.ToolBox.list.sort":"[LIST] . [M] ([FUN])","nhjr.ToolBox.list.sort.menu.sort":"sort","nhjr.ToolBox.list.sort.menu.reverse":"reverse","nhjr.ToolBox.list.sort.fun.menu.null":"","nhjr.ToolBox.list.sort.fun.menu.up":"up","nhjr.ToolBox.list.sort.fun.menu.down":"down",
+    "nhjr.ToolBox.list.sort":"[LIST] .sort ([FUN])","nhjr.ToolBox.list.sort.fun.menu.null":"","nhjr.ToolBox.list.sort.fun.menu.up":"up","nhjr.ToolBox.list.sort.fun.menu.down":"down",
+    "nhjr.ToolBox.list.reverse":"[LIST]reverse",
     "nhjr.ToolBox.list.join":"[LIST] .join ( [VALUE] )",
 
 
@@ -84,6 +85,8 @@
     "nhjr.ToolBox.ConvenientModules.saveListToScratch":"set [ISSTAGE] [SPRITE] list [NAME] to [LIST]",
     "nhjr.ToolBox.ConvenientModules.getScratchVariable":"get [ISSTAGE] [SPRITE] Variable [NAME]",
     "nhjr.ToolBox.ConvenientModules.saveVariableToScratch":"set [ISSTAGE] [SPRITE] Variable [NAME] to [VALUE]",
+    "nhjr.ToolBox.ConvenientModules.spriteName":"sprite name",
+    "nhjr.ToolBox.ConvenientModules.isStage":"isStage",
 
     "nhjr.ToolBox.TemporaryVariable.clearAllVariable":"clearAllTemporaryVariable",
     "nhjr.ToolBox.TemporaryVariable.setItoValue":"set TemporaryVariable [NAME] to [VALUE]",

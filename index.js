@@ -1,11 +1,26 @@
+window.nhjrToolBox_version='1.1.0';
+
+
+
+
 const {api, type, Extension} = require('clipcc-extension');
-let nhjrToolBox_Error='';
-let nhjrToolBox_hat_oldValue={};
-let nhjrToolBox_TemporaryVariable={};
-let nhjrToolBox_returnError=false;
-let nhjrToolBox_returnObj=false;
 const VM = api.getVmInstance();
-let alerted = false;
+const scratchAllowTypes=['string','number','boolean'];
+var nhjrToolBox_alerted = false;
+
+var nhjrToolBox_Error='';
+var nhjrToolBox_hat_oldValue={};
+var nhjrToolBox_TemporaryVariable={};
+var nhjrToolBox_returnError=false;
+var nhjrToolBox_returnObj=false;
+
+const nhjrToolBox_globalFunList=['logError','VarRead','VarSet','VarJSONSet','getExtensionVariable','strTo_str_','_str_ToStr',
+'inputStrToObj','String_to_Regular_Expression','openHelp','returnForBoolean','returnForObj','list_getN','list_itemN','list_setN',
+'makeMenus','spritesMenu','getScratchSpriteByName','setScratchVarValue','getScratchVarValue','block_JSON_readValueFromKey',
+'block_JSON_readKeys','block_JSON_setValue','block_JSON_keyRename','block_JSON_delKey'];
+
+//const nhjrToolBox_globalVariebles=['VM','scratchAllowTypes','nhjrToolBox_alerted','nhjrToolBox_Error','nhjrToolBox_hat_oldValue',
+//'nhjrToolBox_TemporaryVariable','nhjrToolBox_returnError','nhjrToolBox_returnObj']
 
 class nhjrToolBoxExtension extends Extension {
     logError(e){
@@ -14,13 +29,25 @@ class nhjrToolBoxExtension extends Extension {
         if (nhjrToolBox_returnError){return nhjrToolBox_Error};
         return ''
     }
+    VarRead(NAME){
+        if (/^[a-zA-Z_][a-zA-Z0-9_]+$/.test(NAME)) return eval(NAME)
+    }
+    VarSet(NAME,VALUE){
+        if (/^[a-zA-Z_][a-zA-Z0-9_]+$/.test(NAME)) eval(`${NAME}=VALUE`)
+    }
+    VarJSONSet(NAME,KEY,VALUE){
+        if (/^[a-zA-Z_][a-zA-Z0-9_]+$/.test(NAME)) eval(`${NAME}[KEY]=VALUE`)
+    }
+
+
+
     strTo_str_(VALUE){//str to "str"
         try{return JSON.stringify(String(VALUE))}
         catch(e){return this.logError(e)}
     }
     _str_ToStr(VALUE){//"str" to str
         try{if (typeof(VALUE)=='string'){
-            return this.returnForList(JSON.parse(VALUE))
+            return this.returnForObj(JSON.parse(VALUE))
         };
         return VALUE}catch(e){return this.logError(e)}
         
@@ -38,13 +65,13 @@ class nhjrToolBoxExtension extends Extension {
     }
     openHelp(openLink){//来自叶绿素
         if (window.clipAlert) {
-            if (alerted) return;
+            if (nhjrToolBox_alerted) return;
             return new Promise(resolve => {
-                alerted = true;
+                nhjrToolBox_alerted = true;
                 clipAlert('跳转警告', `该作品尝试将您跳转至 ${openLink}, 您确定要进行跳转吗？`)
                     .then(result => {
                         if (result) window.open(`${openLink}`, '_blank');
-                        alerted = false;
+                        nhjrToolBox_alerted = false;
                         resolve();
                     });
             });
@@ -59,10 +86,9 @@ class nhjrToolBoxExtension extends Extension {
             else {return !(["false","","null","NaN","undefined"].includes(VALUE))}
         };return Boolean(VALUE);
     }
-    returnForJSON(VALUE){return this.returnForList(VALUE)}
-    returnForList(VALUE){
+    returnForObj(VALUE){
         try{
-            if (['number','boolean','string'].includes(typeof(VALUE))){
+            if (scratchAllowTypes.includes(typeof(VALUE))){
                 return VALUE
             } else if (typeof(VALUE)=='object'){
                 if(nhjrToolBox_returnObj){return VALUE};
@@ -87,7 +113,7 @@ class nhjrToolBoxExtension extends Extension {
     }
     list_itemN(VALUE_LIST,VALUE_N){
         try {
-            return this.returnForList(this.inputStrToObj(VALUE_LIST)[ this.list_getN(VALUE_LIST,VALUE_N) ]);
+            return this.returnForObj(this.inputStrToObj(VALUE_LIST)[ this.list_getN(VALUE_LIST,VALUE_N) ]);
         }
         catch(e){return this.logError(e)}
     }
@@ -95,7 +121,15 @@ class nhjrToolBoxExtension extends Extension {
         try{
             var LIST=this.inputStrToObj(LIST);
             LIST[this.list_getN(LIST,N)]=this._str_ToStr(VALUE);
-            return this.returnForList(LIST)
+            return this.returnForObj(LIST)
+        }
+        catch(e){return this.logError(e)}
+    }
+    list_push(LIST,VALUE){
+        try{
+            var LIST=this.inputStrToObj(LIST);
+            LIST.push(this._str_ToStr(VALUE));
+            return this.returnForObj(LIST)
         }
         catch(e){return this.logError(e)}
     }
@@ -109,15 +143,140 @@ class nhjrToolBoxExtension extends Extension {
         }
         return menu;
     }
+    spritesMenu(){
+        var sprites = [];
+        for (const targetId in VM.runtime.targets){
+            if (!VM.runtime.targets.hasOwnProperty(targetId)) continue;
+            const name = VM.runtime.targets[targetId].sprite.name;
+            sprites.push([name, name]);
+        };
+        return sprites;
+    }
+
+
+
+    block_JSON_readValueFromKey(Json,KEY){
+        try{var json=this.inputStrToObj(Json);
+        var i=0;
+        const keys=JSON.parse(`[${KEY}]`);
+        var value=json[keys[0]];
+        while (i < keys.length-1){
+            i+=1;
+            var value=value[keys[i]];
+        };return this.returnForObj(value)
+    }catch(e){return this.logError(e)}}
+    block_JSON_readKeys(Json,MENU){
+        try{if(['keys','values','entries'].includes(MENU)){
+            var json=this.inputStrToObj(Json);
+            return this.returnForObj(eval(`Object.${MENU}(json)`))
+        }
+    }catch(e){return this.logError(e)}}
+    block_JSON_setValue(Json,KEY,VALUE){
+        try {
+        const keys=JSON.parse(`[${KEY}]`);
+        var valueList=[this.inputStrToObj(Json)];
+        var i=0;
+        while (i<keys.length){
+            i+=1;
+            valueList[i]=valueList[i-1][keys[i-1]];
+        };valueList[i]=this._str_ToStr(VALUE);
+        while (i>0){
+            valueList[i-1][keys[i-1]]=valueList[i];
+            delete valueList[i];
+            i-=1;
+        };
+        return this.returnForObj(valueList[0])
+    }catch(e){return this.logError(e)}}
+    block_JSON_keyRename(Json,KEY,NEWKEY){
+        try {
+        var keys=JSON.parse(`[${KEY}]`);
+        var NEW=this._str_ToStr(NEWKEY);
+        var valueList=[this.inputStrToObj(Json)];
+        var i=0;
+        while (i<keys.length-1){
+            i+=1;
+            valueList[i]=valueList[i-1][keys[i-1]];
+        };
+        valueList[i][NEW]=valueList[i][keys[i]];
+        delete valueList[i][keys[i]];
+        i-=1;
+        while (i>0){
+            valueList[i-1][keys[i-1]]=valueList[i];
+            delete valueList[i];
+            i-=1;
+        };
+        return this.returnForObj(valueList[0])
+    }catch(e){return this.logError(e)}}
+    block_JSON_delKey(Json,KEY){
+        try {
+            var keys=JSON.parse(`[${KEY}]`);
+            var valueList=[this.inputStrToObj(Json)];
+            var i=0;
+            while (i<keys.length-1){
+                i+=1;
+                valueList[i]=valueList[i-1][keys[i-1]];
+            };
+            delete valueList[i][keys[i]];
+            i-=1;
+            while (i>0){
+                valueList[i-1][keys[i-1]]=valueList[i];
+                delete valueList[i];
+                i-=1;
+            };
+            return this.returnForObj(valueList[0])
+        }catch(e){return this.logError(e)}
+    }
+
+
+    block_getScratchList(isStage,sprite,name,util){
+        try{
+            var Json = this.getScratchSpriteByName(this.returnForBoolean(isStage),sprite,util.target.runtime);
+            var returnValue=this.returnForObj(this.getScratchVarValue(Json.variables,name,'list'));
+            return returnValue
+        }catch(e){return this.logError(e)}
+    }
+    block_saveListToScratch(isStage,sprite,name,LIST,util){
+        try{
+            var Json = this.getScratchSpriteByName(this.returnForBoolean(isStage),sprite,util.target.runtime);
+            var saveList=this.inputStrToObj(LIST);
+            if (saveList instanceof Array){
+                var i=0
+                for (i = 0; i < saveList.length; i++){
+                    if (!scratchAllowTypes.includes(typeof(saveList[i]))){
+                        saveList[i]=String(saveList[i])
+                    }
+                };this.setScratchVarValue(Json.variables,name,saveList,Json.id,'list')
+            }
+            
+        }catch(e){return this.logError(e)}
+    }
+    block_getScratchVariable(isStage,sprite,name,util){
+        try{
+            var Json = this.getScratchSpriteByName(this.returnForBoolean(isStage),sprite,util.target.runtime);
+            return this.getScratchVarValue(Json.variables,name,'')
+        }catch(e){return this.logError(e)}
+    }
+    block_saveVariableToScratch(isStage,sprite,name,VALUE,util){
+        try{
+            var Json = this.getScratchSpriteByName(this.returnForBoolean(isStage),sprite,util.target.runtime);
+            var saveValue=VALUE;
+            if (!scratchAllowTypes.includes(typeof(saveValue))){
+                saveValue=String(saveValue)
+            };this.setScratchVarValue(Json.variables,name,saveValue,Json.id,'')
+        }catch(e){return this.logError(e)}
+    }
+
+
+
 
     //借鉴自string扩展
-    getSpriteByName(isStage,name,runtime){
+    getScratchSpriteByName(isStage,name,runtime){
         for(var sprite in runtime.targets){
             if((isStage||(!isStage&&runtime.targets[sprite].sprite.name==name))&&runtime.targets[sprite].isStage==isStage){
                 return runtime.targets[sprite] 
             }}
     }
-    setVarValue(varJson,name,value,targetId,type){
+    setScratchVarValue(varJson,name,value,targetId,type){
         //var variableId = '';
         for(var variable in varJson){
             if(varJson[variable].name==name&&varJson[variable].type==type)
@@ -125,14 +284,48 @@ class nhjrToolBoxExtension extends Extension {
         }
         //if(variableId!='')  vm.setVariableValue(targetId,variableId,value);
     }
-    getVarValue(varJson,name,type){
+    getScratchVarValue(varJson,name,type){
         for(var variable in varJson){
             if(varJson[variable].name==name&&varJson[variable].type==type)  return varJson[variable].value;
         }
     }
 
 
+
+
+    addGlobalFun(V1,V2,LIST){//批量设置全局函数(不要开放给积木！！！)
+        for (const i in LIST){
+            //console.log('registerGlobalFunction  name  '+V1+LIST[i]);
+            eval(`api.registerGlobalFunction(V1+LIST[i],${V2+LIST[i]})`)
+        }
+    }
+    delGlobalFun(V1,LIST){//批量设置全局函数
+        for (const i in LIST){
+            //console.log('unregisterGlobalFunction  name  '+V1+LIST[i]);
+            api.unregisterGlobalFunction(V1+LIST[i])
+        }
+    }
+    
+    onUninit() {
+        //移除全局函数
+        this.delGlobalFun('nhjrToolBox_',nhjrToolBox_globalFunList);
+        //移除扩展
+        api.removeCategory('nhjr.ToolBox.help');
+        api.removeCategory('nhjr.ToolBox.JSON');
+        api.removeCategory('nhjr.ToolBox.list');
+        api.removeCategory('nhjr.ToolBox.TemporaryVariable');
+        api.removeCategory('nhjr.ToolBox.StringAndType');
+        api.removeCategory('nhjr.ToolBox.RegularExpression');
+        api.removeCategory('nhjr.ToolBox.ConvenientModules');
+        api.removeCategory('nhjr.ToolBox.debug');
+
+        console.log(`Thanks for use nhjrToolBox ${nhjrToolBox_version}, goodbye`)
+    }
     onInit() {
+        //添加全局函数
+        this.addGlobalFun('nhjrToolBox_','this.',nhjrToolBox_globalFunList);
+
+        //添加扩展
         api.addCategory({
             categoryId: 'nhjr.ToolBox.help', 
             messageId: 'nhjr.ToolBox.help',
@@ -183,21 +376,21 @@ class nhjrToolBoxExtension extends Extension {
             type: type.BlockType.COMMAND,
             messageId: 'nhjr.ToolBox.help.github',
             categoryId: 'nhjr.ToolBox.help',
-            function: args => this.openHelp("https://github.com/NanHaiJuRuo/clipcc-extension-nhjrToolBox")
+            function: () => this.openHelp("https://github.com/NanHaiJuRuo/clipcc-extension-nhjrToolBox")
         });
         api.addBlock({
             opcode: 'nhjr.ToolBox.help.gitee',
             type: type.BlockType.COMMAND,
             messageId: 'nhjr.ToolBox.help.gitee',
             categoryId: 'nhjr.ToolBox.help',
-            function: args => this.openHelp("https://gitee.com/nanhaijuruo/clipcc-extension-nhjrToolBox")
+            function: () => this.openHelp("https://gitee.com/nanhaijuruo/clipcc-extension-nhjrToolBox")
         });
         api.addBlock({
             opcode: 'nhjr.ToolBox.help.codingclip',
             type: type.BlockType.COMMAND,
             messageId: 'nhjr.ToolBox.help.codingclip',
             categoryId: 'nhjr.ToolBox.help',
-            function: args => this.openHelp("https://codingclip.com/editor/970")
+            function: () => this.openHelp("https://codingclip.com/editor/970")
         });
 
         //debug
@@ -222,14 +415,14 @@ class nhjrToolBoxExtension extends Extension {
             type: type.BlockType.REPORTER,
             messageId: 'nhjr.ToolBox.debug.error',
             categoryId: 'nhjr.ToolBox.debug',
-            function: args => nhjrToolBox_Error
+            function: () => nhjrToolBox_Error
         });
         api.addBlock({
             opcode: 'nhjr.ToolBox.debug.VM',
             type: type.BlockType.REPORTER,
             messageId: 'nhjr.ToolBox.debug.VM',
             categoryId: 'nhjr.ToolBox.debug',
-            function: args => {
+            function: () => {
                 try {if(nhjrToolBox_returnObj){return JSON.parse(this._str_ToStr(JSON.stringify(VM)))};
                     return this._str_ToStr(JSON.stringify(VM))}
                 catch(e){return this.logError(e)}
@@ -240,7 +433,7 @@ class nhjrToolBoxExtension extends Extension {
             type: type.BlockType.REPORTER,
             messageId: 'nhjr.ToolBox.debug.hatResult',
             categoryId: 'nhjr.ToolBox.debug',
-            function: args => {
+            function: () => {
                 try {return JSON.stringify(nhjrToolBox_hat_oldValue)}
                 catch(e){return this.logError(e)}
             }
@@ -250,7 +443,7 @@ class nhjrToolBoxExtension extends Extension {
             type: type.BlockType.COMMAND,
             messageId: 'nhjr.ToolBox.debug.clearHatResult',
             categoryId: 'nhjr.ToolBox.debug',
-            function: args => {
+            function: () => {
                 try {nhjrToolBox_hat_oldValue={}}
                 catch(e){return this.logError(e)}
             }
@@ -260,7 +453,7 @@ class nhjrToolBoxExtension extends Extension {
             type: type.BlockType.REPORTER,
             messageId: 'nhjr.ToolBox.debug.getAllTemporaryVariableJSON',
             categoryId: 'nhjr.ToolBox.debug',
-            function: args => {
+            function: () => {
                 try {
                     return JSON.stringify(nhjrToolBox_TemporaryVariable)
                 }
@@ -288,7 +481,7 @@ class nhjrToolBoxExtension extends Extension {
             type: type.BlockType.BOOLEAN,
             messageId: 'nhjr.ToolBox.debug.isReturnError',
             categoryId: 'nhjr.ToolBox.debug',
-            function: args => nhjrToolBox_returnError
+            function: () => nhjrToolBox_returnError
         });
         api.addBlock({
             opcode: 'nhjr.ToolBox.debug.setReturnObj',
@@ -311,7 +504,7 @@ class nhjrToolBoxExtension extends Extension {
             type: type.BlockType.BOOLEAN,
             messageId: 'nhjr.ToolBox.debug.isReturnObj',
             categoryId: 'nhjr.ToolBox.debug',
-            function: args => nhjrToolBox_returnObj
+            function: () => nhjrToolBox_returnObj
         });
         api.addBlock({
             opcode:'nhjr.ToolBox.debug.JSON.parse',
@@ -353,20 +546,16 @@ class nhjrToolBoxExtension extends Extension {
             type:type.BlockType.REPORTER,
             messageId: 'nhjr.ToolBox.ConvenientModules.getScratchList',
             categoryId: 'nhjr.ToolBox.ConvenientModules',
-            function: (args,util) => {
-                try{
-                    var Json = this.getSpriteByName(this.returnForBoolean(args.ISSTAGE),args.SPRITE,util.target.runtime);
-                    var returnValue=this.returnForList(this.getVarValue(Json.variables,args.NAME,'list'));
-                    return returnValue
-                }catch(e){return this.logError(e)}
-            },param: {
+            function: (args,util) => this.block_getScratchList(args.ISSTAGE,args.SPRITE,args.NAME,util)
+            ,param: {
                 NAME: {
                     type: type.ParameterType.STRING,
                     default: 'MyList'
                 },
                 SPRITE:{
                     type: type.ParameterType.STRING,
-                    default: 'Stage'
+                    default: 'Stage',
+                    menu: ()=>this.spritesMenu()
                 },
                 ISSTAGE:{
                     type: type.ParameterType.STRING,
@@ -380,21 +569,8 @@ class nhjrToolBoxExtension extends Extension {
             type:type.BlockType.COMMAND,
             messageId: 'nhjr.ToolBox.ConvenientModules.saveListToScratch',
             categoryId: 'nhjr.ToolBox.ConvenientModules',
-            function: (args,util) => {
-                try{
-                    var Json = this.getSpriteByName(this.returnForBoolean(args.ISSTAGE),args.SPRITE,util.target.runtime);
-                    var saveList=this.inputStrToObj(args.LIST);
-                    if (saveList instanceof Array){
-                        var i=0
-                        for (i = 0; i < saveList.length; i++){
-                            if (!['string','number'].includes(typeof(saveList[i]))){
-                                saveList[i]=String(saveList[i])
-                            }
-                        };this.setVarValue(Json.variables,args.NAME,saveList,Json.id,'list')
-                    }
-                    
-                }catch(e){return this.logError(e)}
-            },param: {
+            function: (args,util) => this.block_saveListToScratch(args.ISSTAGE,args.SPRITE,args.NAME,args.LIST,util)
+            ,param: {
                 NAME: {
                     type: type.ParameterType.STRING,
                     default: 'MyList'
@@ -403,7 +579,8 @@ class nhjrToolBoxExtension extends Extension {
                     default: '["apple","banana","cat"]'
                 },SPRITE:{
                     type: type.ParameterType.STRING,
-                    default: 'Stage'
+                    default: 'Stage',
+                    menu: ()=>this.spritesMenu()
                 },
                 ISSTAGE:{
                     type: type.ParameterType.STRING,
@@ -417,18 +594,15 @@ class nhjrToolBoxExtension extends Extension {
             type:type.BlockType.REPORTER,
             messageId: 'nhjr.ToolBox.ConvenientModules.getScratchVariable',
             categoryId: 'nhjr.ToolBox.ConvenientModules',
-            function: (args,util) => {
-                try{
-                    var Json = this.getSpriteByName(this.returnForBoolean(args.ISSTAGE),args.SPRITE,util.target.runtime);
-                    return this.getVarValue(Json.variables,args.NAME,'')
-                }catch(e){return this.logError(e)}
-            },param: {
+            function: (args,util) => this.block_getScratchVariable(args.ISSTAGE,args.SPRITE,args.NAME,util)
+            ,param: {
                 NAME: {
                     type: type.ParameterType.STRING,
                     default: 'MyVariable'
                 },SPRITE:{
                     type: type.ParameterType.STRING,
-                    default: 'Stage'
+                    default: 'Stage',
+                    menu: ()=>this.spritesMenu()
                 },
                 ISSTAGE:{
                     type: type.ParameterType.STRING,
@@ -442,15 +616,8 @@ class nhjrToolBoxExtension extends Extension {
             type:type.BlockType.COMMAND,
             messageId: 'nhjr.ToolBox.ConvenientModules.saveVariableToScratch',
             categoryId: 'nhjr.ToolBox.ConvenientModules',
-            function: (args,util) => {
-                try{
-                    var Json = this.getSpriteByName(this.returnForBoolean(args.ISSTAGE),args.SPRITE,util.target.runtime);
-                    var saveValue=args.VALUE;
-                    if (!['string','number'].includes(typeof(saveValue))){
-                        saveValue=String(saveValue)
-                    };this.setVarValue(Json.variables,args.NAME,saveValue,Json.id,'')
-                }catch(e){return this.logError(e)}
-            },param: {
+            function: (args,util) => this.block_saveVariableToScratch(args.ISSTAGE,args.SPRITE,args.NAME,args.VALUE,util)
+            ,param: {
                 NAME: {
                     type: type.ParameterType.STRING,
                     default: 'MyList'
@@ -459,7 +626,8 @@ class nhjrToolBoxExtension extends Extension {
                     default: '0'
                 },SPRITE:{
                     type: type.ParameterType.STRING,
-                    default: 'Stage'
+                    default: 'Stage',
+                    menu: ()=>this.spritesMenu()
                 },
                 ISSTAGE:{
                     type: type.ParameterType.STRING,
@@ -468,6 +636,33 @@ class nhjrToolBoxExtension extends Extension {
                 }
             }
         });
+        api.addBlock({
+            opcode:'nhjr.ToolBox.ConvenientModules.spriteName',
+            type: type.BlockType.REPORTER,
+            messageId: 'nhjr.ToolBox.ConvenientModules.spriteName',
+            categoryId: 'nhjr.ToolBox.ConvenientModules',
+            param: {
+                VALUE:{
+                    type: type.ParameterType.STRING,
+                    default:' '
+                }
+            },
+            function: (args,util) => util.thread.target.sprite.name
+        });
+        api.addBlock({
+            opcode:'nhjr.ToolBox.ConvenientModules.isStage',
+            type: type.BlockType.BOOLEAN,
+            messageId: 'nhjr.ToolBox.ConvenientModules.isStage',
+            categoryId: 'nhjr.ToolBox.ConvenientModules',
+            param: {
+                VALUE:{
+                    type: type.ParameterType.STRING,
+                    default:' '
+                }
+            },
+            function: (args,util) => util.thread.target.isStage
+        });
+        
 
         api.addBlock({
             opcode: 'nhjr.ToolBox.ConvenientModules.hatWhenBecomeTrue',
@@ -532,7 +727,7 @@ class nhjrToolBoxExtension extends Extension {
             type: type.BlockType.HAT,
             messageId: 'nhjr.ToolBox.ConvenientModules.NeverGonnaGiveYouStart',
             categoryId: 'nhjr.ToolBox.ConvenientModules',
-            function: (args) => false
+            function: () => false
         });
         api.addBlock({
             opcode: 'nhjr.ToolBox.ConvenientModules.NeverGonnaLetYouStop',
@@ -570,7 +765,7 @@ class nhjrToolBoxExtension extends Extension {
                     default:'false'
                 }
             },
-            function: (args) => { if (args.CONDITION){return args.VALUE1} else {return args.VALUE2} }
+            function: (args) => { if (this.returnForBoolean(args.CONDITION)){return args.VALUE1} else {return args.VALUE2} }
         });
         api.addBlock({//借鉴自棒棒糖
             opcode: 'nhjr.ToolBox.ConvenientModules.writeClipboard',
@@ -638,7 +833,7 @@ class nhjrToolBoxExtension extends Extension {
         });
         api.addBlock({
             opcode: 'nhjr.ToolBox.StringAndType.instanceof',
-            type: type.BlockType.REPORTER,
+            type: type.BlockType.BOOLEAN,
             messageId: 'nhjr.ToolBox.StringAndType.instanceof',
             categoryId: 'nhjr.ToolBox.StringAndType',
             param: {
@@ -1006,17 +1201,7 @@ class nhjrToolBoxExtension extends Extension {
                     default: '"key","key2"'
                 }
             },
-            function: args => {
-                try{var json=this.inputStrToObj(args.JSON);
-                    var i=0;
-                    var keys=JSON.parse(`[${args.KEY}]`);
-                    var value=json[keys[0]];
-                    while (i < keys.length-1){
-                        i+=1;
-                        var value=value[keys[i]];
-                    };return this.returnForJSON(value)
-                }catch(e){return this.logError(e)}
-        }});
+            function: args => this.block_JSON_readValueFromKey(args.JSON,args.KEY)});
         api.addBlock({
             opcode:'nhjr.ToolBox.JSON.readKeys',
             type: type.BlockType.REPORTER,
@@ -1033,13 +1218,7 @@ class nhjrToolBoxExtension extends Extension {
                     menu: this.makeMenus('nhjr.ToolBox.JSON.readKeys',['keys','values','entries'])
                 }
             },
-            function: args => {
-                try{if(['keys','values','entries'].includes(args.MENU)){
-                    var json=this.inputStrToObj(args.JSON);
-                    return this.returnForJSON(eval(`Object.${args.MENU}(json)`))
-                }
-            }catch(e){return this.logError(e)}
-            }
+            function: args => this.block_JSON_readKeys(args.JSON,args.MENU)
         });
         api.addBlock({
             opcode:'nhjr.ToolBox.JSON.containsKey',
@@ -1062,7 +1241,7 @@ class nhjrToolBoxExtension extends Extension {
             }
         });
 
-        //setJSON 未完成！！！！！！
+        //setJSON
         api.addBlock({
             opcode:'nhjr.ToolBox.JSON.setValue',
             type: type.BlockType.REPORTER,
@@ -1082,23 +1261,7 @@ class nhjrToolBoxExtension extends Extension {
                     default: '"ok"'
                 }
             },
-            function: args => {
-                try {
-                    var keys=JSON.parse(`[${args.KEY}]`);
-                    var valueList=[this.inputStrToObj(args.JSON)];
-                    var i=0;
-                    while (i<keys.length){
-                        i+=1;
-                        valueList[i]=valueList[i-1][keys[i-1]];
-                    };valueList[i]=this._str_ToStr(args.VALUE);
-                    while (i>0){
-                        valueList[i-1][keys[i-1]]=valueList[i];
-                        delete valueList[i];
-                        i-=1;
-                    };
-                    return this.returnForJSON(valueList[0])
-                }catch(e){return this.logError(e)}
-            }
+            function: args => this.block_JSON_setValue(args.JSON,args.KEY,args.VALUE)
         });
         api.addBlock({
             opcode:'nhjr.ToolBox.JSON.keyRename',
@@ -1119,27 +1282,7 @@ class nhjrToolBoxExtension extends Extension {
                     default: '"newKey"'
                 }
             },
-            function: args => {
-                try {
-                    var keys=JSON.parse(`[${args.KEY}]`);
-                    var NEW=this._str_ToStr(args.NEWKEY);
-                    var valueList=[this.inputStrToObj(args.JSON)];
-                    var i=0;
-                    while (i<keys.length-1){
-                        i+=1;console.log(i);
-                        valueList[i]=valueList[i-1][keys[i-1]];
-                    };
-                    valueList[i][NEW]=valueList[i][keys[i]];
-                    delete valueList[i][keys[i]];
-                    i-=1;
-                    while (i>0){
-                        valueList[i-1][keys[i-1]]=valueList[i];
-                        delete valueList[i];
-                        i-=1;
-                    };
-                    return this.returnForJSON(valueList[0])
-                }catch(e){return this.logError(e)}
-            }
+            function: args => this.block_JSON_keyRename(args.JSON,args.KEY,args.NEWKEY)
         });
         api.addBlock({
             opcode:'nhjr.ToolBox.JSON.delKey',
@@ -1156,25 +1299,7 @@ class nhjrToolBoxExtension extends Extension {
                     default: '"key","key2"'
                 }
             },
-            function: args => {
-                try {
-                    var keys=JSON.parse(`[${args.KEY}]`);
-                    var valueList=[this.inputStrToObj(args.JSON)];
-                    var i=0;
-                    while (i<keys.length-1){
-                        i+=1;console.log(i);
-                        valueList[i]=valueList[i-1][keys[i-1]];
-                    };
-                    delete valueList[i][keys[i]];
-                    i-=1;
-                    while (i>0){
-                        valueList[i-1][keys[i-1]]=valueList[i];
-                        delete valueList[i];
-                        i-=1;
-                    };
-                    return this.returnForJSON(valueList[0])
-                }catch(e){return this.logError(e)}
-            }
+            function: args => this.block_JSON_delKey(args.JSON,args.KEY)
         });
 
         //list (array)
@@ -1217,9 +1342,9 @@ class nhjrToolBoxExtension extends Extension {
             function: args => {
                 try {
                     if (args.NUMBER2==''){
-                        return this.returnForList(this.inputStrToObj(args.LIST).slice(args.NUMBER1,))
+                        return this.returnForObj(this.inputStrToObj(args.LIST).slice(args.NUMBER1,))
                     }else{
-                        return this.returnForList(this.inputStrToObj(args.LIST).slice(args.NUMBER1,args.NUMBER2))
+                        return this.returnForObj(this.inputStrToObj(args.LIST).slice(args.NUMBER1,args.NUMBER2))
                     }
                 }
                 catch(e){return this.logError(e)}
@@ -1324,7 +1449,7 @@ class nhjrToolBoxExtension extends Extension {
             },
             function: args => {
                 try {
-                    return this.list_setN(args.LIST, (this.inputStrToObj(args.LIST)).length, args.VALUE)
+                    return this.list_push(args.LIST, args.VALUE)
                 }
                 catch(e){return this.logError(e)}
             }
@@ -1342,7 +1467,7 @@ class nhjrToolBoxExtension extends Extension {
             },
             function: args => {
                 try {
-                    return this.returnForList(Array.from(new Set(this.inputStrToObj(args.LIST))))
+                    return this.returnForObj(Array.from(new Set(this.inputStrToObj(args.LIST))))
                 }
                 catch(e){return this.logError(e)}
             }
@@ -1366,7 +1491,7 @@ class nhjrToolBoxExtension extends Extension {
             function: args => {
                 try {
                     if (['max','min'].includes(args.M)){
-                        return this.returnForList(eval(`Math.${args.M}.apply(null, this.inputStrToObj(args.LIST))`))
+                        return this.returnForObj(eval(`Math.${args.M}.apply(null, this.inputStrToObj(args.LIST))`))
                     }
                     
                 }
@@ -1383,11 +1508,6 @@ class nhjrToolBoxExtension extends Extension {
                     type: type.ParameterType.STRING,
                     default: '[999,123,456,654,15,30,664]'
                 },
-                M:{
-                    type: type.ParameterType.STRING,
-                    default: 'sort',
-                    menu: this.makeMenus('nhjr.ToolBox.list.sort',['sort','reverse'])
-                },
                 FUN:{
                     type: type.ParameterType.STRING,
                     default: 'up',
@@ -1396,9 +1516,27 @@ class nhjrToolBoxExtension extends Extension {
             },
             function: args => {
                 try {
-                    if (['sort','reverse'].includes(args.M) && ['null','up','down'].includes(args.FUN)){
-                        return this.returnForList(eval(`this.inputStrToObj(args.LIST).${args.M}(${ ( ['','function(a,b){return a-b}','function(a,b){return b-a}'][ ['null','up','down'].indexOf(args.FUN) ] ) })`))
+                    if (['null','up','down'].includes(args.FUN)){
+                        return this.returnForObj(eval(`this.inputStrToObj(args.LIST).sort(${['','function(a,b){return a-b}','function(a,b){return b-a}'][ ['null','up','down'].indexOf(args.FUN) ]})`))
                     }
+                }
+                catch(e){return this.logError(e)}
+            }
+        });
+        api.addBlock({
+            opcode:'nhjr.ToolBox.list.reverse',
+            type: type.BlockType.REPORTER,
+            messageId: 'nhjr.ToolBox.list.reverse',
+            categoryId: 'nhjr.ToolBox.list',
+            param: {
+                LIST:{
+                    type: type.ParameterType.STRING,
+                    default: '["apple","banana","cat"]'
+                }
+            },
+            function: args => {
+                try {
+                    return this.returnForObj(this.inputStrToObj(args.LIST).reverse())
                 }
                 catch(e){return this.logError(e)}
             }
@@ -1420,7 +1558,7 @@ class nhjrToolBoxExtension extends Extension {
             },
             function: args => {
                 try {
-                    return this.returnForList(this.inputStrToObj(args.LIST).join(args.VALUE))
+                    return this.returnForObj(this.inputStrToObj(args.LIST).join(args.VALUE))
                 }
                 catch(e){return this.logError(e)}
             }
@@ -1434,7 +1572,7 @@ class nhjrToolBoxExtension extends Extension {
             type: type.BlockType.COMMAND,
             messageId: 'nhjr.ToolBox.TemporaryVariable.clearAllVariable',
             categoryId: 'nhjr.ToolBox.TemporaryVariable',
-            function: args => {
+            function: () => {
                 try {
                     nhjrToolBox_TemporaryVariable={}
                 }
@@ -1612,7 +1750,7 @@ class nhjrToolBoxExtension extends Extension {
                     var RETURN=[];
                     var RETURN_match=VALUE1.match(VALUE2);
                     var MENU=args.MENU;
-                    if (MENU=='match'){return this.returnForList(RETURN_match)};
+                    if (MENU=='match'){return this.returnForObj(RETURN_match)};
                     var i=0;
                     if (MENU=='begin'){
                         while (VALUE2.test(VALUE1)){
@@ -1637,7 +1775,7 @@ class nhjrToolBoxExtension extends Extension {
                             i+=1
                         }
                     }else{return ''};
-                    return this.returnForList(RETURN)
+                    return this.returnForObj(RETURN)
                 }
                 catch(e){return this.logError(e)}
             }
@@ -1662,8 +1800,9 @@ class nhjrToolBoxExtension extends Extension {
                 }
             },
             function: args => {
-                try {
-                    return String(args.VALUE1).replace(this.String_to_Regular_Expression(args.VALUE2),this._str_ToStr(args.VALUE3))
+                try {var VALUE2=this.String_to_Regular_Expression(args.VALUE2);
+                    if (VALUE2==''){var VALUE2=this._str_ToStr(args.VALUE2)};
+                    return String(args.VALUE1).replace(VALUE2,this._str_ToStr(args.VALUE3))
                 }
                 catch(e){return this.logError(e)}
             }
@@ -1686,24 +1825,15 @@ class nhjrToolBoxExtension extends Extension {
             function: args => {
                 try {var VALUE2=this.String_to_Regular_Expression(args.VALUE2);
                     if (VALUE2==''){var VALUE2=this._str_ToStr(args.VALUE2)}
-                    return this.returnForList(String(args.VALUE1).split(VALUE2))
+                    return this.returnForObj(String(args.VALUE1).split(VALUE2))
                 }
                 catch(e){return this.logError(e)}
             }
         });
-    }
 
 
 
-    onUninit() {
-        api.removeCategory('nhjr.ToolBox.help');
-        api.removeCategory('nhjr.ToolBox.JSON');
-        api.removeCategory('nhjr.ToolBox.list');
-        api.removeCategory('nhjr.ToolBox.TemporaryVariable');
-        api.removeCategory('nhjr.ToolBox.StringAndType');
-        api.removeCategory('nhjr.ToolBox.RegularExpression');
-        api.removeCategory('nhjr.ToolBox.ConvenientModules');
-        api.removeCategory('nhjr.ToolBox.debug');
+        console.log(`Welcome to use nhjrToolBox ${nhjrToolBox_version} !`)
     }
 }
 module.exports = nhjrToolBoxExtension;

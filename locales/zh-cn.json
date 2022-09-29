@@ -5,7 +5,7 @@
     "nhjr.ToolBox.StringAndType":"字符串与类型",
     "nhjr.ToolBox.RegularExpression":"正则表达式",
     "nhjr.ToolBox.ConvenientModules":"便利积木",
-    "nhjr.ToolBox.debug":"调试选项",
+    "nhjr.ToolBox.debug":"调试选项 - nhjrToolBox",
 
     "nhjr.ToolBox.help.github": "前往 github 仓库",
     "nhjr.ToolBox.help.gitee": "前往 gitee 仓库",
@@ -59,14 +59,15 @@
     "nhjr.ToolBox.list.removeDuplicateItems":"列表 [LIST] 去除重复项",
     "nhjr.ToolBox.list.addItem":"列表 [LIST] 加入 [VALUE]",
     "nhjr.ToolBox.list.mxxItem":"列表 [LIST] 的 [M] 项","nhjr.ToolBox.list.mxxItem.menu.max":"最大","nhjr.ToolBox.list.mxxItem.menu.min":"最小",
-    "nhjr.ToolBox.list.sort":"[LIST] . [M] ([FUN])","nhjr.ToolBox.list.sort.menu.sort":"排序","nhjr.ToolBox.list.sort.menu.reverse":"倒序","nhjr.ToolBox.list.sort.fun.menu.null":"","nhjr.ToolBox.list.sort.fun.menu.up":"升序","nhjr.ToolBox.list.sort.fun.menu.down":"降序",
+    "nhjr.ToolBox.list.sort":"[LIST] .排序 ([FUN])","nhjr.ToolBox.list.sort.fun.menu.null":"","nhjr.ToolBox.list.sort.fun.menu.up":"升序","nhjr.ToolBox.list.sort.fun.menu.down":"降序",
+    "nhjr.ToolBox.list.reverse":"[LIST]倒序",
     "nhjr.ToolBox.list.join":"[LIST]使用 [VALUE] 合并为字符串",
 
 
     "nhjr.ToolBox.ConvenientModules.hatWhenBecomeTrue":"当 [CONDITION] 变成立",
     "nhjr.ToolBox.ConvenientModules.hatWhenChange":"当 [CONDITION] 变了",
     "nhjr.ToolBox.ConvenientModules.NeverGonnaGiveYouStart":"永远不会给你触发",
-    "nhjr.ToolBox.ConvenientModules.NeverGonnaLetYouStop":"永远不会给你停下",
+    "nhjr.ToolBox.ConvenientModules.NeverGonnaLetYouStop":"永远不会让你停下",
     "nhjr.ToolBox.ConvenientModules.hatWhenIsTrue":"当 [CONDITION] 成立",
     "nhjr.ToolBox.ConvenientModules.ifElseReturn":"如果 [CONDITION] 返回 [VALUE1] 否则返回 [VALUE2]",
     "nhjr.ToolBox.ConvenientModules.writeClipboard":"写入剪贴板 [TEXT]",
@@ -75,6 +76,8 @@
     "nhjr.ToolBox.ConvenientModules.saveListToScratch":"设置 [ISSTAGE] [SPRITE] 列表 [NAME] 为 [LIST]",
     "nhjr.ToolBox.ConvenientModules.getScratchVariable":"获取 [ISSTAGE] [SPRITE] 变量 [NAME]",
     "nhjr.ToolBox.ConvenientModules.saveVariableToScratch":"设置 [ISSTAGE] [SPRITE] 变量 [NAME] 为 [VALUE]",
+    "nhjr.ToolBox.ConvenientModules.spriteName":"角色名称",
+    "nhjr.ToolBox.ConvenientModules.isStage":"该角色是背景",
 
     "nhjr.ToolBox.TemporaryVariable.clearAllVariable":"清除所有临时变量",
     "nhjr.ToolBox.TemporaryVariable.setItoValue":"设置临时变量 [NAME] 为 [VALUE]",
