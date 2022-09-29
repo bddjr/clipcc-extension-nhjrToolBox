@@ -6,7 +6,7 @@ language: zh-cn
 ***
 ### 有关使用帮助请查看
 
-1.0.1使用帮助 https://codingclip.com/editor/970
+1.1.0 扩展介绍 https://codingclip.com/editor/970
 
 ***
 抢先体验扩展？请到 /dist 文件夹下载。
