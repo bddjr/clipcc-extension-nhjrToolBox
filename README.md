@@ -1,9 +1,9 @@
-language: zh-cn
+Markdown language: zh-cn
 
 # 欢迎使用nhjrToolBox Extension
 扩展封面来自[Edit-Mr](https://github.com/Edit-Mr)
 
-zh-tw langPack语言包：https://github.com/NanHaiJuRuo/nhjrToolBox-zh-tw-langPack 
+zh-tw langPack 繁体语言包：https://github.com/NanHaiJuRuo/nhjrToolBox-zh-tw-langPack 
 
 ***
 ### 有关使用帮助请查看
