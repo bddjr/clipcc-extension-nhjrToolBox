@@ -21,3 +21,5 @@ zh-tw langPack语言包：https://github.com/NanHaiJuRuo/nhjrToolBox-zh-tw-langP
 1.0.1 汉化了扩展
 
 1.1.0 修复了一些严重的bug，更改了部分设定，增加 角色名称 与 该角色是舞台 的输出模块
+
+1.1.1 修复了JSON或列表不能插入除字符串外的其它类型的bug，增加了有关列表的一些功能
