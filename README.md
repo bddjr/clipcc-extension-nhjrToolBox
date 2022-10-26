@@ -5,6 +5,8 @@ Markdown language: zh-cn
 
 zh-tw langPack 繁体语言包：https://github.com/NanHaiJuRuo/nhjrToolBox-zh-tw-langPack 
 
+扩展打包请使用 [nhjr-make_ccx](https://github.com/NanHaiJuRuo/nhjr-make_ccx)
+
 ***
 ### 有关使用帮助请查看
 

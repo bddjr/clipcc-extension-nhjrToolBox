@@ -1,0 +1,87 @@
+[{
+    "id": "setting.default",
+    "type": "boolean",
+    "default": true
+},{
+    "id": "setting.reporterBlock_to_booleanBlock",
+    "type": "boolean",
+    "default": false
+},{
+    "id": "setting.inputBoolean_to",
+    "type": "selector",
+    "default": "BOOLEAN",
+    "options": [{
+        "id": "BOOLEAN",
+        "message": "nhjr.ToolBox.settings.setting.inputBoolean_to.boolean"
+    },{
+        "id": "ANY",
+        "message": "nhjr.ToolBox.settings.setting.inputBoolean_to.any"
+    },{
+        "id": "STRING",
+        "message": "nhjr.ToolBox.settings.setting.inputBoolean_to.string"
+    }]
+},{
+    "id": "setting.itemNumber_beginAt_1",
+    "type": "boolean",
+    "default": false
+},{
+    "id": "setting.slice_includeEnding",
+    "type": "boolean",
+    "default": false
+},{
+    "id": "setting.category.help.color",
+    "type": "number",
+    "default": 32756,
+    "max": 16777215,
+    "min": 0,
+    "precision": 0
+},{
+    "id": "setting.category.StringAndType.color",
+    "type": "number",
+    "default": 32756,
+    "max": 16777215,
+    "min": 0,
+    "precision": 0
+},{
+    "id": "setting.category.JSON.color",
+    "type": "number",
+    "default": 32756,
+    "max": 16777215,
+    "min": 0,
+    "precision": 0
+},{
+    "id": "setting.category.list.color",
+    "type": "number",
+    "default": 32756,
+    "max": 16777215,
+    "min": 0,
+    "precision": 0
+},{
+    "id": "setting.category.TemporaryVariable.color",
+    "type": "number",
+    "default": 32756,
+    "max": 16777215,
+    "min": 0,
+    "precision": 0
+},{
+    "id": "setting.category.RegularExpression.color",
+    "type": "number",
+    "default": 32756,
+    "max": 16777215,
+    "min": 0,
+    "precision": 0
+},{
+    "id": "setting.category.ConvenientModules.color",
+    "type": "number",
+    "default": 32756,
+    "max": 16777215,
+    "min": 0,
+    "precision": 0
+},{
+    "id": "setting.category.debug.color",
+    "type": "number",
+    "default": 32756,
+    "max": 16777215,
+    "min": 0,
+    "precision": 0
+}]
