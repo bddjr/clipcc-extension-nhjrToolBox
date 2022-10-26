@@ -26,4 +26,4 @@ zh-tw langPack 繁体语言包：https://github.com/NanHaiJuRuo/nhjrToolBox-zh-t
 
 1.1.1 修复了JSON或列表不能插入除字符串外的其它类型的bug，增加了有关列表的一些功能
 
-1.2.0.preview.2210.0 打包器改用nhjr-make_ccx，更改了源码加载结构，首次引入settings.json，增加了一些功能，修复了部分错误。
+1.2.0.preview.2210.0 打包器改用nhjr-make_ccx，更改了源码加载结构，首次引入settings.json，增加了一些功能，修复了部分错误。封面改成尺寸480x270的webp图片，减少封面占用体积。
