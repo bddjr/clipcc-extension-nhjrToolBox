@@ -9,7 +9,11 @@ addBlock('strToSTR',tBT.REPORTER, /*opcode是历史遗留问题，请记得这�
         }
 });
 addBlock('STRtoStr',tBT.REPORTER, /*opcode是历史遗留问题，请记得这不是大小写转换。*/
-    a => this._str_ToStr(a.VALUE),
+    a => {
+        try {
+            return this._str_ToStr(a.VALUE)
+        }catch(e){return this.logError(e)}
+    },
     {VALUE: {
             type: tPT.STRING,
             default: '"Hello\\nWorld!"'
@@ -133,12 +137,17 @@ addBlock('NOTequalEqual',tBT.BOOLEAN, a => (a.VALUE1!==a.VALUE2) ,
 });
 addBlock('DecimalToHex',tBT.REPORTER, a => {
         try{
-            if (this.inputStrToBool(a.ADD0X)){return '0x'+Number(a.VALUE).toString(16)}
-            else{return Number(a.VALUE).toString(16)}
-        }catch{return this.logError(e)}
+            if (this.inputStrToBool(a.ADD0X)){
+                var i= Math.round(Number(a.VALUE));
+                if(!Number.isFinite(i)) return i.toString(16);
+                if(i<0) return i.toString(16).replace(/^-/,'-0x');
+                return '0x'+ i.toString(16);
+            }
+            return Number(a.VALUE).toString(16);
+        }catch(e){return this.logError(e)}
     },{
         VALUE: {
-            type: tPT.STRING,
+            type: tPT.NUMBER,
             default: '500'
         },
         ADD0X: {
@@ -149,9 +158,15 @@ addBlock('DecimalToHex',tBT.REPORTER, a => {
 });
 addBlock('HEXToDecimal',tBT.REPORTER, a => {
     try{
-        if (/^0x/.test(String(a.VALUE))){return Number(a.VALUE)}
-        else{return Number('0x'+a.VALUE)}
-    }catch{return this.logError(e)}
+        var value= String(a.VALUE);
+        if(/^-/.test(value)){
+            if (/^-0x/.test(value)) return Number(value);
+            return Number(value.replace(/^-/,'-0x'));
+        }else{
+            if (/^0x/.test(value)) return Number(value);
+            return Number('0x'+value);
+        }
+    }catch(e){return this.logError(e)}
 },{
     VALUE: {
         type: tPT.STRING,
@@ -160,15 +175,27 @@ addBlock('HEXToDecimal',tBT.REPORTER, a => {
 });
 addBlock('NumberToString',tBT.REPORTER, a => {
         try{return Number(a.VALUE).toString(Number(a.TOSTRING))}
-        catch{return this.logError(e)}
+        catch(e){return this.logError(e)}
     },{
         VALUE: {
-            type: tPT.STRING,
+            type: tPT.NUMBER,
             default: '500'
         },TOSTRING:{
-            type: tPT.STRING,
-            default: '16'
+            type: tPT.NUMBER,
+            default: '36'
         }
+});
+addBlock('parseInt',tBT.REPORTER, a => {
+    try{return parseInt(a.V1, a.V2)}
+    catch(e){return this.logError(e)}
+},{
+    V1: {
+        type: tPT.STRING,
+        default: 'dw'
+    },V2:{
+        type: tPT.NUMBER,
+        default: '36'
+    }
 });
 addBlock('RemoveBeginEndingWhiteSpace',tBT.REPORTER, a => {
         try{return String(a.VALUE).trim()}

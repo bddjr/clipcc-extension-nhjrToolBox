@@ -156,16 +156,13 @@ openHelp(openLink) {/*来自叶绿素*/
 
 
 strTo_str_(VALUE) {/* str to "str" */
-    try { return JSON.stringify(String(VALUE)) }
-    catch (e) { return this.logError(e) }
+    return JSON.stringify(String(VALUE)) 
 }
 _str_ToStr(VALUE) {/* "str" to str */
-    try {
-        if (typeof (VALUE) == 'string') {
-            return this.returnForObj(JSON.parse(VALUE))
-        }
-        return this.returnForObj(VALUE)
-    } catch (e) { return this.logError(e) }
+    if (typeof VALUE == 'string') {
+        return this.returnForObj(JSON.parse(VALUE))
+    }
+    return this.returnForObj(VALUE)
 }
 inputStrToObj(Str) {
     if (typeof Str == 'object') return Str ;

@@ -100,8 +100,9 @@ addBlock('match',tBT.REPORTER,
 });
 addBlock('replace',tBT.REPORTER,
     a => {
-        try {var VALUE2=this.String_to_Regular_Expression(a.VALUE2);
-            if (VALUE2==''){var VALUE2=this._str_ToStr(a.VALUE2)};
+        try {
+            if(a.VALUE2[0] =='/') var VALUE2=this.String_to_Regular_Expression(a.VALUE2);
+            else var VALUE2=this._str_ToStr(a.VALUE2);
             return String(a.VALUE1).replace(VALUE2,this._str_ToStr(a.VALUE3))
         }
         catch(e){return this.logError(e)}
@@ -121,8 +122,9 @@ addBlock('replace',tBT.REPORTER,
 });
 addBlock('replaceAll',tBT.REPORTER,
     a => {
-        try {var VALUE2=this.String_to_Regular_Expression(a.VALUE2);
-            if (VALUE2==''){var VALUE2=this._str_ToStr(a.VALUE2)};
+        try {
+            if(a.VALUE2[0] =='/') var VALUE2=this.String_to_Regular_Expression(a.VALUE2);
+            else var VALUE2=this._str_ToStr(a.VALUE2);
             return String(a.VALUE1).replaceAll(VALUE2,this._str_ToStr(a.VALUE3))
         }
         catch(e){return this.logError(e)}
