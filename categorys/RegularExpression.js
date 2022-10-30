@@ -32,9 +32,10 @@ addBlock('exec',tBT.REPORTER,
 });
 addBlock('search',tBT.REPORTER,
     a => {
-        try {var VALUE2=this.String_to_Regular_Expression(a.VALUE2);
-            if (VALUE2==''){var VALUE2=this._str_ToStr(a.VALUE2)};
-            return String(a.VALUE1).search(VALUE2,this._str_ToStr(a.VALUE3))
+        try {
+            if(a.VALUE2[0] =='/') var VALUE2=this.String_to_Regular_Expression(a.VALUE2);
+            else var VALUE2= this._str_ToStr(a.VALUE2);
+            return (String(a.VALUE1).search(VALUE2) + beginItemNumber())
         }
         catch(e){return this.logError(e)}
     },{
@@ -59,27 +60,27 @@ addBlock('match',tBT.REPORTER,
             var i=0;
             if (MENU=='begin'){
                 while (VALUE2.test(VALUE1)){
-                    RETURN[i] = VALUE2.lastIndex - RETURN_match[i].length;
+                    RETURN[i] = VALUE2.lastIndex - RETURN_match[i].length + beginItemNumber();
                     i+=1
                 }
             }else if (MENU=='ending'){
                 while (VALUE2.test(VALUE1)){
-                    RETURN[i] = VALUE2.lastIndex;
+                    RETURN[i] = VALUE2.lastIndex - slice_includeEnding() + beginItemNumber();
                     i+=1
                 }
             }else if (MENU=='matchANDbeginANDending'){
                 while (VALUE2.test(VALUE1)){
                     var ending = VALUE2.lastIndex;
-                    RETURN[i] = [RETURN_match[i], (ending - RETURN_match[i].length), ending];
+                    RETURN[i] = [RETURN_match[i], (ending - RETURN_match[i].length + beginItemNumber()), (ending - slice_includeEnding() + beginItemNumber())];
                     i+=1
                 }
             }else if (MENU=='beginANDending'){
                 while (VALUE2.test(VALUE1)){
                     var ending = VALUE2.lastIndex;
-                    RETURN[i] = [(ending - RETURN_match[i].length), ending];
+                    RETURN[i] = [(ending - RETURN_match[i].length + beginItemNumber()), (ending - slice_includeEnding() + beginItemNumber())];
                     i+=1
                 }
-            }else{return ''};
+            }else return '';
             return this.returnForObj(RETURN)
         }
         catch(e){return this.logError(e)}
@@ -124,7 +125,7 @@ addBlock('replaceAll',tBT.REPORTER,
     a => {
         try {
             if(a.VALUE2[0] =='/') var VALUE2=this.String_to_Regular_Expression(a.VALUE2);
-            else var VALUE2=this._str_ToStr(a.VALUE2);
+            else var VALUE2= this._str_ToStr(a.VALUE2);
             return String(a.VALUE1).replaceAll(VALUE2,this._str_ToStr(a.VALUE3))
         }
         catch(e){return this.logError(e)}
@@ -144,9 +145,9 @@ addBlock('replaceAll',tBT.REPORTER,
 });
 addBlock('split',tBT.REPORTER,
     a => {
-        try {var VALUE2=this.String_to_Regular_Expression(a.VALUE2);
-            if (VALUE2==''){var VALUE2=this._str_ToStr(a.VALUE2)}
-            return this.returnForObj(String(a.VALUE1).split(VALUE2))
+        try {
+            var V2= JSON.parse(`[${a.VALUE2}]`);/*过滤掉不是普通对象的东西*/
+            return this.returnForObj( eval(`String(a.VALUE1).split(${ JSON.stringify(V2).slice(1,-1) })`) )
         }
         catch(e){return this.logError(e)}
     },{

@@ -1,5 +1,4 @@
 const nhjrToolBox_version= require('extension-version');
-window.nhjrToolBox_version= nhjrToolBox_version;
 
 const {api,type,Extension}= require('clipcc-extension');
 const tBT= type.BlockType;

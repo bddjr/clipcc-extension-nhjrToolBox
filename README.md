@@ -29,3 +29,5 @@ zh-tw langPack 繁体语言包：https://github.com/NanHaiJuRuo/nhjrToolBox-zh-t
 1.2.0.preview.2210.0 打包器改用nhjr-make_ccx，更改了源码加载结构，首次引入settings.json，增加了一些功能，修复了部分错误。封面改成尺寸480x270的webp图片，减少封面占用体积。
 
 1.2.0.preview.2210.1 修复replace和replaceAll的字符串匹配问题，修复10进制负数转16进制错误的问题，修复部分积木抓错时无变量的问题。新增parseInt模块。
+
+1.2.0.preview.2210.2 修复正则表达式未适配settings.json的问题，以及正则表达式的split无法正常运作的问题。
