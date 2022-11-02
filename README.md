@@ -31,3 +31,5 @@ zh-tw langPack 繁体语言包：https://github.com/NanHaiJuRuo/nhjrToolBox-zh-t
 1.2.0.preview.2210.1 修复replace和replaceAll的字符串匹配问题，修复10进制负数转16进制错误的问题，修复部分积木抓错时无变量的问题。新增parseInt模块。
 
 1.2.0.preview.2210.2 修复正则表达式未适配settings.json的问题，以及正则表达式的split无法正常运作的问题。
+
+1.2.0.preview.2210.3 修复设置列表时输入对象，对象链接未断开的错误。

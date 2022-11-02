@@ -430,14 +430,15 @@ block_list_getJson(isStage, sprite, util) {
 block_getScratchList(isStage, sprite, name, util) {
     try {
         var Json = this.block_list_getJson(isStage, sprite, util);
-        var returnValue = this.returnForObj(this.getScratchVarValue(Json.variables, name, 'list'));
+        var returnValue = this.ScratchType(this.getScratchVarValue(Json.variables, name, 'list'));
         return returnValue
     } catch (e) { return this.logError(e) }
 }
 block_saveListToScratch(isStage, sprite, name, LIST, util) {
     try {
         var Json = this.block_list_getJson(isStage, sprite, util);
-        var saveList = this.inputStrToObj(LIST);
+        if(typeof LIST =='object') var saveList = JSON.parse(JSON.stringify(LIST));/*断绝路径，避免损坏*/
+          else var saveList = JSON.parse(LIST);
         if (saveList instanceof Array) {
             for (const i in saveList) {
                 /* 避免损坏作品 */
