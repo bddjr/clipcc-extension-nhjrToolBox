@@ -1,3 +1,6 @@
+# 该扩展不再更新。
+
+***
 Markdown language: zh-cn
 
 # 欢迎使用nhjrToolBox Extension
