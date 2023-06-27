@@ -1,4 +1,4 @@
-# 该扩展不再更新。
+# 该扩展不再更新，请移步到重写后的版本：https://github.com/bddjr/clipcc-extension-bddjr_toolbox_v2
 
 ***
 Markdown language: zh-cn
